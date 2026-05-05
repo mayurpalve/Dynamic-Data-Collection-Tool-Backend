@@ -5,6 +5,10 @@ dotenv.config();
 export const env = {
   PORT: process.env.PORT || 5000,
   MONGO_URI: process.env.MONGO_URI,
+  CLIENT_URLS: (process.env.CLIENT_URLS || process.env.CLIENT_URL || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean),
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "1d",
   NODE_ENV: process.env.NODE_ENV || "development",

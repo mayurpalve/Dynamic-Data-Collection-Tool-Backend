@@ -9,6 +9,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import { env } from "./config/env.js";
 
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { authRateLimit } from "./middlewares/rateLimit.middleware.js";
@@ -48,7 +49,17 @@ const app = express();
 /* ================= CORS (MUST BE FIRST) ================= */
 app.use(
   cors({
-    origin: ["http://localhost:5173","http://localhost:5174"],
+    origin(origin, callback) {
+      const allowedOrigins = env.CLIENT_URLS.length
+        ? env.CLIENT_URLS
+        : ["http://localhost:5173", "http://localhost:5174"];
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS origin not allowed"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
