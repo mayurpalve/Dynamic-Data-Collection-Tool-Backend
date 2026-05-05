@@ -1,6 +1,6 @@
 import express from "express";
 import { submitPublicSchemeAnswer } from "./publicSchemeAnswer.controller.js";
-import { publicRateLimit } from "../../middlewares/rateLimit.middleware.js";
+import { publicRateLimit } from "../../middlewares/ratelimit.middleware.js";
 
 const router = express.Router();
 

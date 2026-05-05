@@ -1,7 +1,7 @@
 /*
-to globally apply the rate limit 
+to globally apply the rate limit
 
-import { authRateLimit } from "./middlewares/rateLimit.middleware.js";
+import { authRateLimit } from "./middlewares/ratelimit.middleware.js";
 app.use("/api", authRateLimit);
 */
 
@@ -12,7 +12,7 @@ import morgan from "morgan";
 import { env } from "./config/env.js";
 
 import { errorHandler } from "./middlewares/error.middleware.js";
-import { authRateLimit } from "./middlewares/rateLimit.middleware.js";
+import { authRateLimit } from "./middlewares/ratelimit.middleware.js";
 
 
 // Auth & User
