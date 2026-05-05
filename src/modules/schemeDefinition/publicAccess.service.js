@@ -1,9 +1,10 @@
-export const isPublicSchemeAccessible = ({
-  scheme,
-  definition
-}) => {
+import { isSchemeAcceptingSubmissions } from "../scheme/schemeWindow.service.js";
+
+export const isPublicSchemeAccessible = ({ scheme, definition }) => {
   return (
-    scheme?.isPublic === true &&
-    definition?.isPublic === true
+    !!scheme &&
+    !scheme.deletedAt &&
+    definition?.isPublic === true &&
+    isSchemeAcceptingSubmissions(scheme)
   );
 };

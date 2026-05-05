@@ -5,7 +5,8 @@ import { extractUniqueGroups } from "../schemeDefinition/uniqueRules.util.js";
 export const checkDuplicateAnswer = async ({
   schemeId,
   definition,
-  data
+  data,
+  excludeAnswerId = null
 }) => {
   const uniqueGroups = extractUniqueGroups(definition);
 
@@ -32,7 +33,7 @@ export const checkDuplicateAnswer = async ({
 
     const exists = await SchemeAnswer.findOne(query);
 
-    if (exists) {
+    if (exists && exists._id.toString() !== excludeAnswerId?.toString()) {
       throw new ApiError(
         409,
         `Duplicate detected for unique group: ${groupName}`

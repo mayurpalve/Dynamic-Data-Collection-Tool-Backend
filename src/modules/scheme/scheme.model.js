@@ -5,58 +5,68 @@ const schemeSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     description: {
       type: String,
-      trim: true
+      trim: true,
     },
 
     department: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Department"
+      ref: "Department",
     },
     division: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Division"
+      ref: "Division",
     },
     district: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "District"
+      ref: "District",
     },
     taluka: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Taluka"
+      ref: "Taluka",
     },
     region: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Region"
+      ref: "Region",
     },
 
     status: {
       type: String,
       enum: ["DRAFT", "ACTIVE", "INACTIVE"],
-      default: "DRAFT"
+      default: "DRAFT",
+    },
+
+    opensAt: {
+      type: Date,
+      default: null,
+    },
+
+    closesAt: {
+      type: Date,
+      default: null,
     },
 
     isPublic: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true
+      required: true,
     },
 
     deletedAt: {
       type: Date,
-      default: null
-    }
+      default: null,
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 

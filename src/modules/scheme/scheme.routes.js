@@ -1,18 +1,18 @@
 import express from "express";
+import { protect } from "../../middlewares/auth.middleware.js";
+
 import {
   createScheme,
-  listSchemes
+  deleteScheme,
+  listSchemes,
+  updateScheme,
 } from "./scheme.controller.js";
-
-// ✅ correct named import
-import { protect } from "../../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-// protect all scheme routes
-router.use(protect);
-
-router.post("/", createScheme);
-router.get("/", listSchemes);
+router.post("/", protect, createScheme);
+router.get("/", protect, listSchemes);
+router.put("/:id", protect, updateScheme);
+router.delete("/:id", protect, deleteScheme);
 
 export default router;

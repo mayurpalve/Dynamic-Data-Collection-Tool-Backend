@@ -23,13 +23,24 @@ const schemeAnswerSchema = new mongoose.Schema(
     filledBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      default: null // null for public users
+      default:null,
+      index: true
+    },
+
+    hasEdited: {
+      type: Boolean,
+      default: false
+    },
+
+    editedAt: {
+      type: Date,
+      default: null
     },
 
     source: {
       type: String,
-      enum: ["ONLINE", "PUBLIC", "EXCEL"],
-      required: true
+      enum: ["ONLINE", "EXCEL" , "PUBLIC"],
+      default: "ONLINE"
     },
 
     deletedAt: {
@@ -37,12 +48,7 @@ const schemeAnswerSchema = new mongoose.Schema(
       default: null
     }
   },
-  {
-    timestamps: true
-  }
+  { timestamps: true }
 );
 
-export default mongoose.model(
-  "SchemeAnswer",
-  schemeAnswerSchema
-);
+export default mongoose.model("SchemeAnswer", schemeAnswerSchema);

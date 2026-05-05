@@ -18,11 +18,17 @@ export const getPublicScheme = async (req, res, next) => {
       throw new ApiError(404, "Scheme not available");
     }
 
-    res.json(
-      new ApiResponse(200, {
-        scheme,
-        definition
-      }, "Public scheme fetched")
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          item: {
+            scheme,
+            definition
+          }
+        },
+        "Public scheme fetched successfully"
+      )
     );
   } catch (err) {
     next(err);

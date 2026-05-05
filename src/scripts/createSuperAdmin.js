@@ -5,11 +5,12 @@ import { connectDB } from "../config/db.js";
 const createSuperAdmin = async () => {
   await connectDB();
 
-  const exists = await User.findOne({ role: "SUPER_ADMIN" });
+  // ✅ FIX: check by EMAIL, not role
+  const exists = await User.findOne({ email: "admin@gov.local" });
 
   if (exists) {
-    console.log("❌ Super Admin already exists");
-    process.exit();
+    console.log("✅ Super Admin already exists");
+    process.exit(0);
   }
 
   await User.create({
@@ -21,7 +22,7 @@ const createSuperAdmin = async () => {
   });
 
   console.log("✅ Super Admin created");
-  process.exit();
+  process.exit(0);
 };
 
 createSuperAdmin();

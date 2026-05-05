@@ -35,6 +35,9 @@ const fieldSchema = new mongoose.Schema(
 
 const schemeDefinitionSchema = new mongoose.Schema(
   {
+    /* ===============================
+       LINK TO SCHEME
+    ================================ */
     scheme: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Scheme",
@@ -42,11 +45,50 @@ const schemeDefinitionSchema = new mongoose.Schema(
       unique: true
     },
 
+    /* ===============================
+       DYNAMIC FORM FIELDS
+    ================================ */
     fields: {
       type: [fieldSchema],
       required: true
     },
 
+    /* ===============================
+       LOCATION ASSIGNMENT (NEW)
+    ================================ */
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+      default: null
+    },
+
+    division: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Division",
+      default: null
+    },
+
+    district: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "District",
+      default: null
+    },
+
+    taluka: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Taluka",
+      default: null
+    },
+
+    region: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Region",
+      default: null
+    },
+
+    /* ===============================
+       ACCESS CONTROL
+    ================================ */
     assignedRoles: {
       type: [String],
       default: []
@@ -59,15 +101,26 @@ const schemeDefinitionSchema = new mongoose.Schema(
       }
     ],
 
+    /*  Public Link */
+    publicLinkId: {
+      type: String,
+      unique: true,
+      index: true
+    },
+
     isPublic: {
       type: Boolean,
       default: false
     },
 
+    /* ===============================
+       SOFT DELETE
+    ================================ */
     deletedAt: {
       type: Date,
       default: null
     }
+    
   },
   {
     timestamps: true

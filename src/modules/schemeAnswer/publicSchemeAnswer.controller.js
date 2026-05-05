@@ -13,33 +13,55 @@ export const submitPublicSchemeAnswer = async (req, res, next) => {
   try {
     const { schemeId, data } = req.body;
 
+    /* ================= BASIC VALIDATION ================= */
     if (!schemeId || !data) {
       throw new ApiError(400, "schemeId and data are required");
     }
 
-    const scheme = await Scheme.findById(schemeId);
+    /* ================= FIND SCHEME ================= */
+    const scheme = await Scheme.findOne({
+      _id: schemeId,
+      deletedAt: null
+    });
+
+    if (!scheme) {
+      throw new ApiError(404, "Scheme not found");
+    }
+
+    /* ================= FIND DEFINITION ================= */
     const definition = await SchemeDefinition.findOne({
       scheme: schemeId,
       deletedAt: null
     });
 
-    if (!isPublicSchemeAccessible({ scheme, definition })) {
-      throw new ApiError(404, "Scheme not available");
+    if (!definition) {
+      throw new ApiError(404, "Scheme definition not found");
     }
 
-    // validate data
-    validateAnswerData({
+    /* ================= PUBLIC ACCESS CHECK ================= */
+    const isAccessible = isPublicSchemeAccessible({
+      scheme,
+      definition
+    });
+
+    if (!isAccessible) {
+      throw new ApiError(403, "Scheme is not public");
+    }
+
+    /* ================= VALIDATE DATA ================= */
+    await validateAnswerData({
       definition,
       data
     });
 
-    // duplicate check (Phase 5 reuse)
+    /* ================= DUPLICATE CHECK ================= */
     await checkDuplicateAnswer({
       schemeId,
       definition,
       data
     });
 
+    /* ================= CREATE ANSWER ================= */
     const answer = await SchemeAnswer.create({
       scheme: schemeId,
       schemeDefinition: definition._id,
@@ -48,14 +70,16 @@ export const submitPublicSchemeAnswer = async (req, res, next) => {
       source: "PUBLIC"
     });
 
-    res.status(201).json(
+    return res.status(201).json(
       new ApiResponse(
         201,
-        answer,
-        "Public scheme response submitted"
+        { item: answer },
+        "Public scheme response submitted successfully"
       )
     );
+
   } catch (err) {
+    console.error("❌ PUBLIC SUBMIT ERROR:", err);
     next(err);
   }
 };

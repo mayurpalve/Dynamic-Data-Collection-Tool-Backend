@@ -1,6 +1,3 @@
-
-
-
 import SchemeDefinition from "../schemeDefinition/schemeDefinition.model.js";
 import SchemeAnswer from "../schemeAnswer/schemeAnswer.model.js";
 import { parseExcelFile } from "./excelUpload.service.js";
@@ -8,15 +5,14 @@ import { validateAnswerData } from "../schemeAnswer/validateAnswer.service.js";
 import { checkDuplicateAnswer } from "../schemeAnswer/checkDuplicate.service.js";
 import { canUserFillScheme } from "../schemeDefinition/schemeAccess.service.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
+import { ApiError } from "../../utils/ApiError.js";
 
 export const uploadExcelAnswers = async (req, res, next) => {
   try {
     if (!req.file) {
-      return res.status(400).json({
-        message: "Excel file is required"
-      });
+      throw new ApiError(400, "Excel file is required");
     }
-    
+
     const { schemeId } = req.params;
 
     const definition = await SchemeDefinition.findOne({
@@ -25,9 +21,7 @@ export const uploadExcelAnswers = async (req, res, next) => {
     });
 
     if (!definition) {
-      return res.status(404).json({
-        message: "Scheme definition not found"
-      });
+      throw new ApiError(404, "Scheme definition not found");
     }
 
     // Access check ONCE
@@ -37,14 +31,12 @@ export const uploadExcelAnswers = async (req, res, next) => {
     });
 
     if (!allowed) {
-      return res.status(403).json({
-        message: "Access denied"
-      });
+      throw new ApiError(403, "Access denied");
     }
 
     const rows = await parseExcelFile(req.file.buffer);
 
-    const result = {
+    const summary = {
       success: 0,
       failed: 0,
       errors: []
@@ -71,21 +63,21 @@ export const uploadExcelAnswers = async (req, res, next) => {
           source: "EXCEL"
         });
 
-        result.success++;
+        summary.success++;
       } catch (err) {
-        result.failed++;
-        result.errors.push({
+        summary.failed++;
+        summary.errors.push({
           row: row.rowNumber,
           message: err.message
         });
       }
     }
 
-    res.json(
+    return res.status(200).json(
       new ApiResponse(
         200,
-        result,
-        "Excel upload processed"
+        { summary },
+        "Excel upload processed successfully"
       )
     );
   } catch (err) {

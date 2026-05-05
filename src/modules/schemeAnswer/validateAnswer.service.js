@@ -1,20 +1,31 @@
 import { ApiError } from "../../utils/ApiError.js";
-export const validateAnswerData = ({
+export const validateAnswerData = async ({
   definition,
-  data
+  data,
+  allowPartial = false,
 }) => {
   for (const field of definition.fields) {
     const value = data[field.key];
 
     // required check
-    if (field.required && (value === undefined || value === null || value === "")) {
+    if (
+      !allowPartial &&
+      field.required &&
+      (value === undefined || value === null || value === "")
+    ) {
       throw new ApiError(
         400,
         `Field '${field.label}' is required`
       );
     }
 
-    if (value === undefined || value === null) continue;
+    if (
+      value === undefined ||
+      value === null ||
+      (allowPartial && value === "")
+    ) {
+      continue;
+    }
 
     // type validation
     switch (field.type) {

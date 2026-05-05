@@ -4,13 +4,7 @@ import { publicRateLimit } from "../../middlewares/rateLimit.middleware.js";
 
 const router = express.Router();
 
-// public read-only access
-router.get("/:schemeId", getPublicScheme);
-
-router.get(
-  "/:schemeId",
-  publicRateLimit,
-  getPublicScheme
-);
+// public read-only access (by SCHEME ID)
+router.get("/:schemeId", publicRateLimit, getPublicScheme);
 
 export default router;
