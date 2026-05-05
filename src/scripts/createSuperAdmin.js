@@ -1,28 +1,34 @@
-import mongoose from "mongoose";
 import User from "../modules/user/user.model.js";
 import { connectDB } from "../config/db.js";
+import { env } from "../config/env.js";
 
 const createSuperAdmin = async () => {
   await connectDB();
 
-  // ✅ FIX: check by EMAIL, not role
-  const exists = await User.findOne({ email: "admin@gov.local" });
+  const email = env.SUPER_ADMIN_EMAIL.toLowerCase();
+
+  const exists = await User.findOne({ email });
 
   if (exists) {
-    console.log("✅ Super Admin already exists");
+    console.log(`Super Admin already exists for ${email}`);
     process.exit(0);
   }
 
   await User.create({
-    name: "Super Admin",
-    email: "admin@gov.local",
-    password: "Admin@123",
+    name: env.SUPER_ADMIN_NAME,
+    email,
+    password: env.SUPER_ADMIN_PASSWORD,
     role: "SUPER_ADMIN",
-    permissions: ["*"]
+    permissions: ["*"],
   });
 
-  console.log("✅ Super Admin created");
+  console.log("Super Admin created successfully");
+  console.log(`Email: ${email}`);
+  console.log(`Password: ${env.SUPER_ADMIN_PASSWORD}`);
   process.exit(0);
 };
 
-createSuperAdmin();
+createSuperAdmin().catch((error) => {
+  console.error("Failed to create Super Admin", error.message);
+  process.exit(1);
+});
