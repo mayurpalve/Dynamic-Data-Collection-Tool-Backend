@@ -46,6 +46,23 @@ npm run seed:superadmin
 
 The script creates the first `SUPER_ADMIN` from the `SUPER_ADMIN_*` environment variables and skips creation if that email already exists.
 
+## Repair Role Indexes
+
+If your database still has an old `roleName_1` unique index from an earlier schema, role creation can fail after the first insert with a duplicate-key error on `roleName: null`.
+
+Run this repair once against the affected database:
+
+```bash
+npm run fix:roles
+```
+
+The script will:
+
+- drop the legacy `roleName_1` index if present
+- migrate any old `roleName` values into `name`
+- normalize role names to uppercase
+- recreate the correct unique index on `name`
+
 ## Deploy Notes
 
 - Use MongoDB Atlas for the database.
