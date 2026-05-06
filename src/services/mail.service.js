@@ -20,6 +20,9 @@ const getTransporter = () => {
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
     secure: env.SMTP_SECURE,
+    connectionTimeout: env.SMTP_CONNECTION_TIMEOUT,
+    greetingTimeout: env.SMTP_GREETING_TIMEOUT,
+    socketTimeout: env.SMTP_SOCKET_TIMEOUT,
     auth: {
       user: env.SMTP_USER,
       pass: env.SMTP_PASS,
@@ -32,19 +35,27 @@ const getTransporter = () => {
 export const sendPasswordResetOtpEmail = async ({ to, name, otp }) => {
   const client = getTransporter();
 
-  await client.sendMail({
-    from: env.MAIL_FROM,
-    to,
-    subject: `${env.APP_NAME} password reset OTP`,
-    text: [
-      `Hello ${name || "User"},`,
-      "",
-      `Your ${env.APP_NAME} password reset OTP is: ${otp}`,
-      "",
-      "This OTP is valid for 10 minutes.",
-      "Do not share this OTP with anyone.",
-      "",
-      `If you did not request this reset, please ignore this email.`,
-    ].join("\n"),
-  });
+  try {
+    await client.sendMail({
+      from: env.MAIL_FROM,
+      to,
+      subject: `${env.APP_NAME} password reset OTP`,
+      text: [
+        `Hello ${name || "User"},`,
+        "",
+        `Your ${env.APP_NAME} password reset OTP is: ${otp}`,
+        "",
+        "This OTP is valid for 10 minutes.",
+        "Do not share this OTP with anyone.",
+        "",
+        `If you did not request this reset, please ignore this email.`,
+      ].join("\n"),
+    });
+  } catch (error) {
+    console.error("Failed to send password reset OTP email:", error);
+    throw new ApiError(
+      502,
+      "Unable to send OTP email. Please verify SMTP settings and try again."
+    );
+  }
 };

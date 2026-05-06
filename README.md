@@ -27,6 +27,15 @@ CLIENT_URLS=https://your-frontend-domain.vercel.app
 SUPER_ADMIN_NAME=Super Admin
 SUPER_ADMIN_EMAIL=admin@gov.local
 SUPER_ADMIN_PASSWORD=Admin@123
+MAIL_FROM=yourgmail@gmail.com
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=yourgmail@gmail.com
+SMTP_PASS=your_16_character_gmail_app_password
+SMTP_CONNECTION_TIMEOUT=10000
+SMTP_GREETING_TIMEOUT=10000
+SMTP_SOCKET_TIMEOUT=20000
 ```
 
 ## Run
@@ -70,3 +79,4 @@ The script will:
 - Make sure the frontend uses `VITE_API_BASE_URL=https://your-backend-domain/api`.
 - Make sure `CLIENT_URLS` contains the deployed frontend URL.
 - For production, set `SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD` before running `npm run seed:superadmin`.
+- If forgot-password requests hang or time out, verify the SMTP values above and check that the hosting provider can reach the mail server.
