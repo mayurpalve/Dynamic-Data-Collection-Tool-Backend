@@ -10,7 +10,7 @@ export const getSchemeDefinitionByPublicLink = async (req, res, next) => {
       publicLinkId,
       isPublic: true,
       deletedAt: null
-    }).populate("scheme", "name description");
+    }).populate("scheme", "name description status opensAt closesAt");
 
     if (!definition) {
       throw new ApiError(404, "Scheme not available");

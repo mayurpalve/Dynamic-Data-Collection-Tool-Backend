@@ -4,7 +4,7 @@ import SchemeAnswer from "./schemeAnswer.model.js";
 
 import { validateAnswerData } from "./validateAnswer.service.js";
 import { checkDuplicateAnswer } from "./checkDuplicate.service.js";
-import { isPublicSchemeAccessible } from "../schemeDefinition/publicAccess.service.js";
+import { assertSchemeAcceptingSubmissions } from "../scheme/schemeWindow.service.js";
 
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { ApiError } from "../../utils/ApiError.js";
@@ -39,14 +39,11 @@ export const submitPublicSchemeAnswer = async (req, res, next) => {
     }
 
     /* ================= PUBLIC ACCESS CHECK ================= */
-    const isAccessible = isPublicSchemeAccessible({
-      scheme,
-      definition
-    });
-
-    if (!isAccessible) {
+    if (!definition.isPublic) {
       throw new ApiError(403, "Scheme is not public");
     }
+
+    assertSchemeAcceptingSubmissions(scheme);
 
     /* ================= VALIDATE DATA ================= */
     await validateAnswerData({
