@@ -18,6 +18,7 @@ import { authRateLimit } from "./middlewares/ratelimit.middleware.js";
 // Auth & User
 import authRoutes from "./modules/auth/auth.routes.js";
 import userRoutes from "./modules/user/user.routes.js";
+import notificationRoutes from "./modules/notification/notification.routes.js";
 
 // Masters
 import departmentRoutes from "./modules/master/department/department.routes.js";
@@ -110,6 +111,7 @@ app.get("/health", (req, res) => {
 // Auth & User
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/roles", roleRoutes);
 
 // Masters

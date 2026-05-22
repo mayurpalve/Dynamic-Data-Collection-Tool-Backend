@@ -83,3 +83,27 @@ export const getUsers = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getMyProfile = async (req, res, next) => {
+  try {
+    const user = await userService.getMyProfile(req.user);
+
+    return res.status(200).json(
+      new ApiResponse(200, { item: user }, "Profile fetched successfully")
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateMyProfile = async (req, res, next) => {
+  try {
+    const user = await userService.updateMyProfile(req.body, req.user);
+
+    return res.status(200).json(
+      new ApiResponse(200, { item: user }, "Profile updated successfully")
+    );
+  } catch (err) {
+    next(err);
+  }
+};

@@ -89,6 +89,42 @@ export const listUsers = async (currentUser) => {
   }).select("-password");
 };
 
+export const getMyProfile = async (currentUser) => {
+  const user = await User.findOne({
+    _id: currentUser._id,
+    deletedAt: null,
+  }).select("-password");
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return user;
+};
+
+export const updateMyProfile = async (payload, currentUser) => {
+  const user = await User.findOne({
+    _id: currentUser._id,
+    deletedAt: null,
+  });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (payload.name !== undefined) {
+    const nextName = String(payload.name || "").trim();
+    if (!nextName) {
+      throw new ApiError(400, "Name is required");
+    }
+    user.name = nextName;
+  }
+
+  await user.save();
+
+  return User.findById(user._id).select("-password");
+};
+
 export const updateUserPermissions = async (
   id,
   permissions,

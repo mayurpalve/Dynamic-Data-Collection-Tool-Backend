@@ -3,6 +3,13 @@ import SchemeAssignment from "../schemeAccess/schemeAssignment.model.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { validateSchemeWindow } from "./schemeWindow.service.js";
+import { createManyNotifications } from "../notification/notification.service.js";
+
+const formatDateLabel = (value) => {
+  if (!value) return "not set";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "not set" : date.toLocaleString();
+};
 
 export const createScheme = async (req, res, next) => {
   try {
@@ -80,6 +87,14 @@ export const updateScheme = async (req, res, next) => {
 
     validateSchemeWindow(req.body);
 
+    const previous = {
+      name: scheme.name,
+      status: scheme.status,
+      opensAt: scheme.opensAt,
+      closesAt: scheme.closesAt,
+      description: scheme.description,
+    };
+
     Object.assign(scheme, {
       name: req.body.name ?? scheme.name,
       description: req.body.description ?? scheme.description,
@@ -89,6 +104,62 @@ export const updateScheme = async (req, res, next) => {
     });
 
     await scheme.save();
+
+    const assignments = await SchemeAssignment.find({
+      scheme: scheme._id,
+      deletedAt: null,
+    }).select("assignedTo");
+
+    const notificationItems = [];
+
+    if (previous.status !== scheme.status) {
+      assignments.forEach((assignment) => {
+        notificationItems.push({
+          userId: assignment.assignedTo,
+          title: "Scheme status updated",
+          message: `${scheme.name} status changed from ${previous.status} to ${scheme.status}.`,
+          type: "SCHEME_STATUS_CHANGED",
+          entityType: "SCHEME",
+          entityId: scheme._id,
+        });
+      });
+    }
+
+    if (
+      String(previous.opensAt || "") !== String(scheme.opensAt || "") ||
+      String(previous.closesAt || "") !== String(scheme.closesAt || "")
+    ) {
+      assignments.forEach((assignment) => {
+        notificationItems.push({
+          userId: assignment.assignedTo,
+          title: "Scheme submission window updated",
+          message: `${scheme.name} window updated. Opens: ${formatDateLabel(
+            scheme.opensAt
+          )}. Closes: ${formatDateLabel(scheme.closesAt)}.`,
+          type: "SCHEME_WINDOW_CHANGED",
+          entityType: "SCHEME",
+          entityId: scheme._id,
+        });
+      });
+    }
+
+    if (
+      previous.name !== scheme.name ||
+      previous.description !== scheme.description
+    ) {
+      assignments.forEach((assignment) => {
+        notificationItems.push({
+          userId: assignment.assignedTo,
+          title: "Scheme details updated",
+          message: `${scheme.name} details were updated. Review the latest information before submitting.`,
+          type: "SCHEME_UPDATED",
+          entityType: "SCHEME",
+          entityId: scheme._id,
+        });
+      });
+    }
+
+    await createManyNotifications(notificationItems);
 
     return res
       .status(200)

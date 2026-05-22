@@ -3,6 +3,7 @@ import User from "../user/user.model.js";
 import Scheme from "../scheme/scheme.model.js";
 import SchemeDefinition from "../schemeDefinition/schemeDefinition.model.js";
 import { ApiError } from "../../utils/ApiError.js";
+import { createNotification } from "../notification/notification.service.js";
 
 const validateHierarchyForAssignment = ({ currentUser, targetUser }) => {
   if (currentUser.role === "SUPER_ADMIN") {
@@ -98,12 +99,25 @@ export const assignScheme = async ({
     throw new ApiError(400, "Scheme already assigned");
   }
 
-  return SchemeAssignment.create({
+  const assignment = await SchemeAssignment.create({
     scheme: schemeId,
     assignedTo: targetUserId,
     assignedBy: currentUser._id,
     editableFields,
   });
+
+  await createNotification({
+    userId: targetUserId,
+    title: "New scheme assigned",
+    message: editableFields.length
+      ? `${scheme.name} was assigned to you with selected editable fields.`
+      : `${scheme.name} was assigned to you for full-form access.`,
+    type: "SCHEME_ASSIGNED",
+    entityType: "ASSIGNMENT",
+    entityId: assignment._id,
+  });
+
+  return assignment;
 };
 
 export const updateSchemeAssignment = async ({

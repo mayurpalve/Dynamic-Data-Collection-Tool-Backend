@@ -5,12 +5,16 @@ import {
   createUser,
   setUserStatus,
   deleteUser,
-  getUsers
+  getUsers,
+  getMyProfile,
+  updateMyProfile
 } from "./user.controller.js";
 
 const router = express.Router();
 
 // Super Admin only
+router.get("/me", protect, getMyProfile);
+router.patch("/me", protect, updateMyProfile);
 router.post("/", protect, hasPermission("USER_MANAGE"), createUser);
 router.get("/", protect, hasPermission("USER_MANAGE"), getUsers);
 router.patch("/:id/status", protect, hasPermission("USER_MANAGE"), setUserStatus);
